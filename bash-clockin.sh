@@ -26,9 +26,21 @@ ${name}stopwork () {
 
 ${name}printlog () {
 	node -e "
+		/* https://stackoverflow.com/a/11888430/459881 */
+		const timezoneOffset = (() => {
+			const d = new Date();
+			const jan = new Date(d.getFullYear(), 0, 1);
+			const jul = new Date(d.getFullYear(), 6, 1);
+
+			const offset = d.getTimezoneOffset();
+			const stdOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+
+			return offset + (offset < stdOffset ? 60 : 0);
+		})();
+
 		const afterDate = new Date(
 			new Date('\${1}' || 0).getTime() +
-			new Date().getTimezoneOffset() * 60000
+			timezoneOffset * 60000
 		);
 
 		const list = fs.readFileSync(
