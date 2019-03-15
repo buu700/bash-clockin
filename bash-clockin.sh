@@ -50,6 +50,7 @@ ${name}printlog () {
 
 			return {
 				date: new Date(dateTimeString),
+				dateTimeString,
 				originalDate: new Date(dateTimeString.replace(/(\d+:?)+ [A-Z]+ /, '')),
 				start: s.indexOf(': START: ') > -1,
 				task: s.split(': START: ')[1]
@@ -61,6 +62,41 @@ ${name}printlog () {
 		const dates = list.reduce(
 			(acc, o) => {
 				const dateString = o.originalDate.toLocaleDateString();
+
+				if (!acc[dateString]) {
+					const yesterday =
+						new Date(o.originalDate.getTime() - 86400000).toLocaleDateString()
+					;
+
+					const lastEvent =
+						acc[yesterday] &&
+						acc[yesterday].slice(-1)[0]
+					;
+
+					if (lastEvent && lastEvent.start) {
+						const yesterdayDateTimeString =
+							lastEvent.dateTimeString.replace(/\d+:\d+:\d+/, '23:59:59')
+						;
+
+						const todayDateTimeString =
+							o.dateTimeString.replace(/\d+:\d+:\d+/, '00:00:00')
+						;
+
+						acc[yesterday].push({
+							...lastEvent,
+							date: new Date(yesterdayDateTimeString),
+							dateTimeString: yesterdayDateTimeString,
+							start: false,
+							task: undefined
+						});
+
+						acc[dateString] = [{
+							...lastEvent,
+							date: new Date(todayDateTimeString),
+							dateTimeString: todayDateTimeString
+						}];
+					}
+				}
 
 				return {
 					...acc,
