@@ -44,21 +44,29 @@ ${name}printlog () {
 		);
 
 		const list = fs.readFileSync(
-			path.join(os.homedir(), '${name}.log')
-		).toString().trim().split('\n').map(s => ({
-			date: new Date(s.replace(/: (START|STOP).*/, '')),
-			start: s.indexOf(': START: ') > -1,
-			task: s.split(': START: ')[1]
-		})).filter(({date}) =>
-			date.getTime() >= afterDate &&
-			date.toLocaleDateString() !== afterDate.toLocaleDateString()
+			path.join(os.homedir(), 'plusminus.log')
+		).toString().trim().split('\n').map(s => {
+			const dateTimeString = s.replace(/: (START|STOP).*/, '');
+
+			return {
+				date: new Date(dateTimeString),
+				originalDate: new Date(dateTimeString.replace(/(\d+:?)+ [A-Z]+ /, '')),
+				start: s.indexOf(': START: ') > -1,
+				task: s.split(': START: ')[1]
+			};
+		}).filter(({originalDate}) =>
+			originalDate > afterDate
 		);
 
 		const dates = list.reduce(
-			(acc, o) => ({
-				...acc,
-				[o.date.toLocaleDateString()]: [...(acc[o.date.toLocaleDateString()] || []), o]
-			}),
+			(acc, o) => {
+				const dateString = o.originalDate.toLocaleDateString();
+
+				return {
+					...acc,
+					[dateString]: [...(acc[dateString] || []), o]
+				}
+			},
 			{}
 		);
 
