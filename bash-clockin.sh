@@ -128,7 +128,7 @@ ${name}printlog () {
 
 				return [
 					k,
-					Math.round(data.time / 1800000) / 2,
+					Math.max(Math.round(data.time / 1800000) / 2, 0.5),
 					Array.from(new Set(data.tasks.filter(s => s))).sort().join('; ')
 				];
 			})

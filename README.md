@@ -47,7 +47,7 @@ Example usage:
 	Date,Hours,Tasks
 	2/14/2019,10.5,Docker image setup; call with Barack; standup
 	2/15/2019,8,HUD development; call with Barack; design review call; standup
-	2/17/2019,0,mugging a senior citizen
+	2/17/2019,0.5,mugging a senior citizen
 	Total,18.5
 
 ## Dependencies
