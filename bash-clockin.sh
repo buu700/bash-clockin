@@ -46,7 +46,10 @@ ${name}printlog () {
 		const list = fs.readFileSync(
 			path.join(os.homedir(), 'plusminus.log')
 		).toString().trim().split('\n').map(s => {
-			const dateTimeString = s.replace(/: (START|STOP).*/, '');
+			const dateTimeString = s.
+				replace(/: (START|STOP).*/, '').
+				replace(/ A([SD])T /, (_, c) => \` E\${c}T \`)
+			;
 
 			return {
 				date: new Date(dateTimeString),
