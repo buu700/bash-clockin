@@ -43,9 +43,12 @@ ${name}printlog () {
 			timezoneOffset * 60000
 		);
 
-		const list = fs.readFileSync(
-			path.join(os.homedir(), '${name}.log')
-		).toString().trim().split('\n').map(s => {
+		const list = [
+			...fs.readFileSync(
+				path.join(os.homedir(), '${name}.log')
+			).toString().trim().split('\n'),
+			'$(date): STOP'
+		].map(s => {
 			const dateTimeString = s.
 				replace(/: (START|STOP).*/, '').
 				replace(/ A([SD])T /, (_, c) => \` E\${c}T \`)
