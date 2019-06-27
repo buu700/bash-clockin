@@ -166,6 +166,12 @@ ${name}togglsync () {
 			).toString().trim()
 		});
 
+		const pidPath = path.join(os.homedir(), '.${name}.toggl.pid');
+		const pid = fs.existsSync(pidPath) ?
+			parseInt(fs.readFileSync(pidPath).toString(), 10) :
+			undefined
+		;
+
 		\$(_${name}getlist)
 
 		const end = new Date();
@@ -188,6 +194,7 @@ ${name}togglsync () {
 					(list[i + 1].date.getTime() - o.date.getTime()) / 1000 :
 					0
 				,
+				pid,
 				start: o.date.toISOString()
 			}).
 			filter(o => o)
