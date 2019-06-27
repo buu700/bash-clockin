@@ -193,6 +193,17 @@ ${name}togglsync () {
 			filter(o => o)
 		;
 
+		const badEntries = entries.filter(o => !(
+			!isNaN(o.duration) &&
+			o.duration > 0 &&
+			o.duration < 3596400
+		));
+
+		if (badEntries.length > 0) {
+			console.error({badEntries});
+			process.exit(0);
+		}
+
 		(async () => {
 			for (const entry of entries) {
 				let err;
@@ -210,7 +221,8 @@ ${name}togglsync () {
 				}
 
 				if (err) {
-					throw new Error(err);
+					console.error(err);
+					return;
 				}
 			}
 
