@@ -10,7 +10,7 @@ set -e
 
 touch ~/${name}.log
 
-cat > ~/.${name}.inc <<- EOM
+cat > ~/.${name}.inc << EOM
 
 ${name}startwork () {
 	if echo "\${*}" | grep -qP '(,|START|STOP)' ; then
@@ -47,11 +47,11 @@ ${name}printlog () {
 			...fs.readFileSync(
 				path.join(os.homedir(), '${name}.log')
 			).toString().trim().split('\n'),
-			'$(date): STOP'
+			'\$(date): STOP'
 		].map(s => {
 			const dateTimeString = s.
 				replace(/: (START|STOP).*/, '').
-				replace(/ A([SD])T /, (_, c) => \` E\${c}T \`)
+				replace(/ A([SD])T /, (_, c) => \\\` E\\\${c}T \\\`)
 			;
 
 			return {
