@@ -24,8 +24,8 @@ ${name}stopwork () {
 	echo "\$(date): STOP" >> ~/${name}.log
 }
 
-${name}printlog () {
-	node -e "
+_${name}getlist () {
+	echo "
 		/* https://stackoverflow.com/a/11888430/459881 */
 		const timezoneOffset = (() => {
 			const d = new Date();
@@ -38,12 +38,7 @@ ${name}printlog () {
 			return offset + (offset < stdOffset ? 60 : 0);
 		})();
 
-		const afterDate = new Date(
-			new Date('\${1}' || 0).getTime() +
-			timezoneOffset * 60000
-		);
-
-		const list = [
+		const getList = (afterDate, beforeDate) => [
 			...fs.readFileSync(
 				path.join(os.homedir(), '${name}.log')
 			).toString().trim().split('\n'),
@@ -62,7 +57,22 @@ ${name}printlog () {
 				task: s.split(': START: ')[1]
 			};
 		}).filter(({originalDate}) =>
-			originalDate > afterDate
+			originalDate > afterDate &&
+			originalDate < beforeDate
+		);
+	"
+}
+
+${name}printlog () {
+	node -e "
+		\$(_${name}getlist)
+
+		const list = getList(
+			new Date(
+				new Date('\${1}' || 0).getTime() +
+				timezoneOffset * 60000
+			),
+			new Date()
 		);
 
 		const dates = list.reduce(
@@ -144,6 +154,68 @@ ${name}printlog () {
 			map(arr => arr.join(',')).
 			join('\n')
 		);
+	"
+}
+
+${name}togglsync () {
+	node -e "
+		const TogglClient = require('toggl-api');
+		const toggl = new TogglClient({apiToken:
+			fs.readFileSync(
+				path.join(os.homedir(), '.${name}.toggl.key')
+			).toString().trim()
+		});
+
+		\$(_${name}getlist)
+
+		const end = new Date();
+		end.setHours(0, 0, 0, 0);
+
+		const list = getList(
+			new Date(
+				'\${1}' === '--all' ?
+					0 :
+					end.getTime() - 86400000 * 2
+			),
+			end
+		);
+
+		const entries = list.
+			map((o, i) => !o.start ? undefined : {
+				billable: true,
+				description: o.task,
+				duration: list[i + 1] ?
+					(list[i + 1].date.getTime() - o.date.getTime()) / 1000 :
+					0
+				,
+				start: o.originalDate.toISOString()
+			}).
+			filter(o => o)
+		;
+
+		(async () => {
+			for (const entry of entries) {
+				let err;
+
+				for (let i = 0 ; i < 5 ; ++i) {
+					err = await new Promise(resolve =>
+						toggl.createTimeEntry(entry, resolve)
+					);
+
+					if (!err) {
+						break;
+					}
+
+					await util.promisify(setTimeout)(1000);
+				}
+
+				if (err) {
+					throw new Error(err);
+				}
+			}
+
+			console.log('Toggl updated!');
+		})();
 	"
 }
 
