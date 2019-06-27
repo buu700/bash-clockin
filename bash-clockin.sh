@@ -188,7 +188,7 @@ ${name}togglsync () {
 					(list[i + 1].date.getTime() - o.date.getTime()) / 1000 :
 					0
 				,
-				start: o.originalDate.toISOString()
+				start: o.date.toISOString()
 			}).
 			filter(o => o)
 		;
