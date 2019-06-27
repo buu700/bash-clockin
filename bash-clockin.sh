@@ -10,7 +10,7 @@ set -e
 
 touch ~/${name}.log
 
-cat >> ~/.${name}.inc <<- EOM
+cat > ~/.${name}.inc <<- EOM
 
 ${name}startwork () {
 	if echo "\${*}" | grep -qP '(,|START|STOP)' ; then
