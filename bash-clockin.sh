@@ -141,7 +141,7 @@ ${name}printlog () {
 
 				return [
 					k,
-					Math.max(Math.round(data.time / 1800000) / 2, 0.5),
+					data.time === 0 ? 0 : Math.max(Math.round(data.time / 1800000) / 2, 0.5),
 					Array.from(new Set(data.tasks.filter(s => s))).sort().join('; ')
 				];
 			})
@@ -151,6 +151,7 @@ ${name}printlog () {
 			...table,
 			['Total', table.slice(1).reduce((total, [_, n]) => total + n, 0)]
 		].
+			filter(arr => arr[1] !== 0).
 			map(arr => arr.join(',')).
 			join('\n')
 		);
