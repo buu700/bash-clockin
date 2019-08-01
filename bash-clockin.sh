@@ -191,9 +191,11 @@ ${name}togglsync () {
 			map((o, i) => !o.start ? undefined : {
 				billable: true,
 				description: o.task,
-				duration: list[i + 1] ?
-					(list[i + 1].date.getTime() - o.date.getTime()) / 1000 :
-					0
+				duration:
+					(
+						(list[i + 1] || {date: end}).date.getTime() -
+						o.date.getTime()
+					) / 1000
 				,
 				pid,
 				start: o.date.toISOString()
