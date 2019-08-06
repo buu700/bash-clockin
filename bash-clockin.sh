@@ -167,6 +167,8 @@ ${name}togglsync () {
 			).toString().trim()
 		});
 
+		const lastSyncDatePath = path.join(os.homedir(), '.${name}.toggl.lastsync');
+
 		const pidPath = path.join(os.homedir(), '.${name}.toggl.pid');
 		const pid = fs.existsSync(pidPath) ?
 			parseInt(fs.readFileSync(pidPath).toString(), 10) :
@@ -178,14 +180,13 @@ ${name}togglsync () {
 		const end = new Date();
 		end.setHours(0, 0, 0, 0);
 
-		const list = getList(
-			new Date(
-				'\${1}' === '--all' ?
-					0 :
-					end.getTime() - 86400000 * 2
-			),
-			end
-		);
+		let start = new Date(0);
+		if (fs.existsSync(lastSyncDatePath)) {
+			start = new Date(fs.readFileSync(lastSyncDatePath).toString());
+			start.setHours(0, 0, 0, 0);
+		}
+
+		const list = getList(start, end);
 
 		const entries = list.
 			map((o, i) => !o.start ? undefined : {
@@ -236,6 +237,7 @@ ${name}togglsync () {
 				}
 			}
 
+			fs.writeFileSync(lastSyncDatePath, end.toLocaleDateString());
 			console.log('Toggl updated!');
 		})();
 	"
