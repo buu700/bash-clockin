@@ -184,6 +184,7 @@ ${name}togglsync () {
 		if (fs.existsSync(lastSyncDatePath)) {
 			start = new Date(fs.readFileSync(lastSyncDatePath).toString());
 			start.setHours(0, 0, 0, 0);
+			start = new Date(start.getTime() - 86400000);
 		}
 
 		const list = getList(start, end);
